@@ -39,6 +39,7 @@ import { normalizeAzureOpenAiDeploymentId } from "@/lib/azure-openai-deployments
 import { formatMarkdown } from "@/lib/format-markdown";
 import { type AuditConflict } from "@/lib/logic-audit";
 import { cn } from "@/lib/utils";
+import { parseResponseJson } from "@/lib/parse-response-json";
 import { calculateVibeScore } from "@/lib/vibe-scorer";
 import {
   AlertDialog,
@@ -399,7 +400,10 @@ export default function Page() {
           method: "POST",
           body,
         });
-        const data = (await res.json()) as { error?: string; content?: string };
+        const data = await parseResponseJson<{
+          error?: string;
+          content?: string;
+        }>(res);
         if (!res.ok) {
           throw new Error(data.error ?? "解析失败");
         }
@@ -454,7 +458,10 @@ export default function Page() {
         }),
       });
 
-      const data = (await res.json()) as { error?: string; markdown?: string };
+      const data = await parseResponseJson<{
+        error?: string;
+        markdown?: string;
+      }>(res);
 
       if (!res.ok) {
         throw new Error(data.error ?? "Clean failed");
@@ -508,7 +515,10 @@ export default function Page() {
         }),
       });
 
-      const data = (await res.json()) as { error?: string; markdown?: string };
+      const data = await parseResponseJson<{
+        error?: string;
+        markdown?: string;
+      }>(res);
 
       if (!res.ok) {
         throw new Error(data.error ?? "Request failed");
@@ -584,10 +594,10 @@ export default function Page() {
             body: JSON.stringify({ refinedMd, model }),
             signal: ac.signal,
           });
-          const data = (await res.json()) as {
+          const data = await parseResponseJson<{
             error?: string;
             conflicts?: AuditConflict[];
-          };
+          }>(res);
           if (!res.ok) {
             throw new Error(data.error ?? "Audit failed");
           }

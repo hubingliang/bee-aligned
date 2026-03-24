@@ -4,7 +4,10 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const MAX_BYTES = 5 * 1024 * 1024;
+/** Vercel Serverless 请求体上限约 4.5MB，须留余量，避免在到达本路由前被边缘层拒绝并返回空响应 */
+export const maxDuration = 60;
+
+const MAX_BYTES = 4 * 1024 * 1024;
 
 const ALLOWED_EXT = new Set(["pdf", "docx", "md", "txt"]);
 
@@ -44,7 +47,7 @@ export async function POST(request: Request) {
 
     if (file.size > MAX_BYTES) {
       return NextResponse.json(
-        { error: "文件超过 5MB 限制，请压缩或拆分后再试" },
+        { error: "文件超过 4MB 限制（部署环境单请求约 4.5MB 上限），请压缩或拆分后再试" },
         { status: 413 },
       );
     }

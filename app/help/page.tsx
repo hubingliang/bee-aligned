@@ -117,7 +117,7 @@ export default function HelpPage() {
               <CardDescription>
                 <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed">
                   <li>未找到上传文件 / 文件为空</li>
-                  <li>文件超过 5MB 限制，请压缩或拆分后再试（HTTP 413）</li>
+                  <li>文件超过约 4MB 限制，请压缩或拆分后再试（部署环境单请求约 4.5MB 上限；过大时可能无 JSON 响应）</li>
                   <li>仅支持 .pdf、.docx、.md、.txt</li>
                   <li>解析失败，可改用手动粘贴内容 / 未能从文件中提取文本，可改用手动粘贴</li>
                   <li>处理上传时出错（服务端异常）</li>

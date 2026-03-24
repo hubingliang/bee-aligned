@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { parseResponseJson } from "@/lib/parse-response-json";
 import { cn } from "@/lib/utils";
 
 const markdownComponents = {
@@ -142,7 +143,10 @@ export function AlignmentAuditPanel({
             conflict: c,
           }),
         });
-        const data = (await res.json()) as { error?: string; markdown?: string };
+        const data = await parseResponseJson<{
+          error?: string;
+          markdown?: string;
+        }>(res);
         if (!res.ok) {
           throw new Error(data.error ?? "Explain failed");
         }
