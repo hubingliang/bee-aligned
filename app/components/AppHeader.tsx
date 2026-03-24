@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SheetTrigger } from "@/components/ui/sheet";
+import { ShinyText } from "@/components/shiny-text";
 
 const WORKFLOW_STEPS = [
   {
@@ -62,7 +63,7 @@ export function AppHeader({
             <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <Sparkles className="size-[18px]" strokeWidth={1.75} />
             </span>
-            <span className="truncate font-semibold tracking-tight">PreVibe</span>
+            <ShinyText className="truncate">AlignSpec</ShinyText>
           </Link>
           <Popover>
             <PopoverTrigger asChild>

@@ -72,13 +72,26 @@ import {
 } from "@/components/ui/tooltip";
 
 const STORAGE = {
+  openai: "alignspec_openai_key",
+  anthropic: "alignspec_anthropic_key",
+  deepseek: "alignspec_deepseek_key",
+  gemini: "alignspec_gemini_key",
+} as const;
+
+/** 从 PreVibe 更名后仍读取旧 key，避免用户重复填 Key */
+const STORAGE_LEGACY = {
   openai: "previbe_openai_key",
   anthropic: "previbe_anthropic_key",
   deepseek: "previbe_deepseek_key",
   gemini: "previbe_gemini_key",
-  achatKey: "previbe_achat_key",
-  achatDeployment: "previbe_achat_deployment",
 } as const;
+
+function readStorageField(id: keyof typeof STORAGE): string {
+  if (typeof window === "undefined") return "";
+  const next = localStorage.getItem(STORAGE[id]);
+  if (next != null && next.length > 0) return next;
+  return localStorage.getItem(STORAGE_LEGACY[id]) ?? "";
+}
 
 const MODEL_OPTIONS = [
   { value: "claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet" },
@@ -86,10 +99,6 @@ const MODEL_OPTIONS = [
   { value: "gpt-4o-mini", label: "GPT-4o-mini" },
   { value: "deepseek-v3", label: "DeepSeek-V3" },
   { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
-  {
-    value: "achat-azure",
-    label: "Achat（公司 Azure / OpenAI 代理）",
-  },
 ] as const;
 
 const TARGET_ROLE_OPTIONS = [
@@ -102,15 +111,7 @@ type ModelId = (typeof MODEL_OPTIONS)[number]["value"];
 type TargetRoleId = (typeof TARGET_ROLE_OPTIONS)[number]["value"];
 
 type KeySlots = Partial<
-  Record<
-    | "openai"
-    | "anthropic"
-    | "deepseek"
-    | "gemini"
-    | "achatKey"
-    | "achatDeployment",
-    string
-  >
+  Record<"openai" | "anthropic" | "deepseek" | "gemini", string>
 >;
 
 function hasKeyForModel(model: ModelId, keys: KeySlots): boolean {
@@ -125,17 +126,15 @@ function hasKeyForModel(model: ModelId, keys: KeySlots): boolean {
       return Boolean(k("deepseek"));
     case "gemini-2.0-flash":
       return Boolean(k("gemini"));
-    case "achat-azure":
-      return Boolean(k("achatKey")) && Boolean(k("achatDeployment"));
     default:
       return false;
   }
 }
 
-/** 当前所选模型对应的密钥槽位（achat 需同时带 key + deployment 两个请求头） */
+/** 当前所选模型对应的密钥槽位 */
 function keySlotForModel(
   model: ModelId,
-): "openai" | "anthropic" | "deepseek" | "gemini" | "achat" {
+): "openai" | "anthropic" | "deepseek" | "gemini" {
   switch (model) {
     case "claude-3-5-sonnet-20241022":
       return "anthropic";
@@ -146,8 +145,6 @@ function keySlotForModel(
       return "deepseek";
     case "gemini-2.0-flash":
       return "gemini";
-    case "achat-azure":
-      return "achat";
     default:
       return "openai";
   }
@@ -246,8 +243,6 @@ export default function Page() {
     anthropic: "",
     deepseek: "",
     gemini: "",
-    achatKey: "",
-    achatDeployment: "",
   });
   const [keysHydrated, setKeysHydrated] = useState(false);
 
@@ -261,6 +256,7 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
   const [cleanError, setCleanError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [specProtocolAchieved, setSpecProtocolAchieved] = useState(false);
 
   const [isParsingFile, setIsParsingFile] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
@@ -273,12 +269,10 @@ export default function Page() {
 
   useEffect(() => {
     setApiKeys({
-      openai: localStorage.getItem(STORAGE.openai) ?? "",
-      anthropic: localStorage.getItem(STORAGE.anthropic) ?? "",
-      deepseek: localStorage.getItem(STORAGE.deepseek) ?? "",
-      gemini: localStorage.getItem(STORAGE.gemini) ?? "",
-      achatKey: localStorage.getItem(STORAGE.achatKey) ?? "",
-      achatDeployment: localStorage.getItem(STORAGE.achatDeployment) ?? "",
+      openai: readStorageField("openai"),
+      anthropic: readStorageField("anthropic"),
+      deepseek: readStorageField("deepseek"),
+      gemini: readStorageField("gemini"),
     });
     setKeysHydrated(true);
   }, []);
@@ -289,8 +283,6 @@ export default function Page() {
     localStorage.setItem(STORAGE.anthropic, apiKeys.anthropic);
     localStorage.setItem(STORAGE.deepseek, apiKeys.deepseek);
     localStorage.setItem(STORAGE.gemini, apiKeys.gemini);
-    localStorage.setItem(STORAGE.achatKey, apiKeys.achatKey);
-    localStorage.setItem(STORAGE.achatDeployment, apiKeys.achatDeployment);
    }, [apiKeys, keysHydrated]);
 
   /** 只带当前模型对应的密钥头，避免误把 Gemini 密钥随 x-openai-key 发给 OpenAI */
@@ -302,8 +294,6 @@ export default function Page() {
       "x-anthropic-key": "",
       "x-deepseek-key": "",
       "x-gemini-key": "",
-      "x-achat-key": "",
-      "x-achat-deployment": "",
     } as const;
     switch (slot) {
       case "openai":
@@ -314,12 +304,6 @@ export default function Page() {
         return { ...base, "x-deepseek-key": apiKeys.deepseek };
       case "gemini":
         return { ...base, "x-gemini-key": apiKeys.gemini };
-      case "achat":
-        return {
-          ...base,
-          "x-achat-key": apiKeys.achatKey,
-          "x-achat-deployment": apiKeys.achatDeployment,
-        };
       default:
         return { ...base };
     }
@@ -474,7 +458,9 @@ export default function Page() {
     try {
       await navigator.clipboard.writeText(markdown);
       setCopied(true);
+      setSpecProtocolAchieved(true);
       window.setTimeout(() => setCopied(false), 2000);
+      window.setTimeout(() => setSpecProtocolAchieved(false), 3200);
     } catch {
       setError("Unable to copy to clipboard");
     }
@@ -879,6 +865,20 @@ export default function Page() {
                       </Button>
                     ) : null}
                   </div>
+
+                  {specProtocolAchieved ? (
+                    <div
+                      role="status"
+                      className="animate-spec-protocol flex w-full shrink-0 items-center justify-center gap-2 rounded-xl border border-emerald-500/45 bg-emerald-500/[0.12] px-4 py-3 text-sm font-semibold tracking-tight text-emerald-800 shadow-sm dark:border-emerald-400/35 dark:bg-emerald-950/40 dark:text-emerald-200"
+                    >
+                      <Check
+                        aria-hidden
+                        className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400"
+                        strokeWidth={2.5}
+                      />
+                      Spec Protocol Achieved
+                    </div>
+                  ) : null}
 
                   <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                     {error ? (

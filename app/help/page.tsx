@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "帮助中心 — PreVibe",
+  title: "帮助中心 — AlignSpec",
   description:
     "模型与密钥、工作流、Vibe 与逻辑审计、Prompt 手册（Logic Blueprint）与常见问题。",
 };

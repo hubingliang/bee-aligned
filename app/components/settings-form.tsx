@@ -18,8 +18,6 @@ export type ApiKeysState = {
   anthropic: string;
   deepseek: string;
   gemini: string;
-  achatKey: string;
-  achatDeployment: string;
 };
 
 type SettingsFormProps = {
@@ -29,7 +27,7 @@ type SettingsFormProps = {
   targetRole: string;
   onTargetRoleChange: (v: string) => void;
   targetRoleOptions: readonly { value: string; label: string }[];
-  activeKeySlot: "openai" | "anthropic" | "deepseek" | "gemini" | "achat";
+  activeKeySlot: "openai" | "anthropic" | "deepseek" | "gemini";
   apiKeys: ApiKeysState;
   setApiKeys: Dispatch<SetStateAction<ApiKeysState>>;
   className?: string;
@@ -96,9 +94,7 @@ export function SettingsForm({
               ? "Claude 使用 Anthropic API Key。"
               : activeKeySlot === "deepseek"
                 ? "DeepSeek-V3 使用 DeepSeek API Key。"
-                : activeKeySlot === "achat"
-                  ? "Achat 代理（Azure OpenAI 兼容）：Endpoint 固定为 https://achat.advai.net/api/v1/openai/proxy；请填写公司在 Achat 分配的 API Key，以及 Deployment Id（与内部文档中的部署名一致）。"
-                  : "Gemini 使用 Google AI Studio / Cloud 的 API Key（与 Generative Language API 兼容）。"}
+                : "Gemini 使用 Google AI Studio / Cloud 的 API Key（与 Generative Language API 兼容）。"}
         </p>
 
         {activeKeySlot === "openai" ? (
@@ -162,40 +158,6 @@ export function SettingsForm({
                 setApiKeys((k) => ({ ...k, gemini: e.target.value }))
               }
             />
-          </div>
-        ) : null}
-
-        {activeKeySlot === "achat" ? (
-          <div className="flex flex-col gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="k-achat">Achat API Key</Label>
-              <Input
-                autoComplete="off"
-                id="k-achat"
-                placeholder="公司在 Achat 生成的 Key"
-                type="password"
-                value={apiKeys.achatKey ?? ""}
-                onChange={(e) =>
-                  setApiKeys((k) => ({ ...k, achatKey: e.target.value }))
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="k-deploy">Deployment Id</Label>
-              <Input
-                autoComplete="off"
-                id="k-deploy"
-                placeholder="与 Azure 部署名一致（见内部文档）"
-                type="text"
-                value={apiKeys.achatDeployment ?? ""}
-                onChange={(e) =>
-                  setApiKeys((k) => ({
-                    ...k,
-                    achatDeployment: e.target.value,
-                  }))
-                }
-              />
-            </div>
           </div>
         ) : null}
       </div>

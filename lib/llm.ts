@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import OpenAI, { AzureOpenAI } from "openai";
+import OpenAI from "openai";
 import { z } from "zod";
 
 /** OpenAI 官方 API（含兼容端点）默认 baseURL */
@@ -8,21 +8,12 @@ export const OPENAI_DEFAULT_BASE_URL = "https://api.openai.com/v1";
 /** DeepSeek OpenAI 兼容入口（与 OpenAI SDK 的 baseURL 约定一致） */
 export const DEEPSEEK_BASE_URL = "https://api.deepseek.com";
 
-/** Achat Proxy for Azure OpenAI（固定 Endpoint，见公司文档） */
-export const ACHAT_AZURE_ENDPOINT =
-  "https://achat.advai.net/api/v1/openai/proxy";
-
-/** 与官方 Azure OpenAI SDK 示例一致 */
-const ACHAT_AZURE_API_VERSION = "2024-04-01-preview";
-
 export const modelEnum = z.enum([
   "claude-3-5-sonnet-20241022",
   "gpt-4o",
   "gpt-4o-mini",
   "deepseek-v3",
   "gemini-2.0-flash",
-  /** 公司 Achat → Azure OpenAI 代理；model 参数传 Deployment Id */
-  "achat-azure",
 ]);
 
 export type ModelId = z.infer<typeof modelEnum>;
@@ -31,18 +22,13 @@ export type LlmProvider =
   | "openai"
   | "anthropic"
   | "deepseek"
-  | "gemini"
-  | "achatAzure";
+  | "gemini";
 
 export type LlmHeaders = {
   openai: string | null;
   anthropic: string | null;
   deepseek: string | null;
   gemini: string | null;
-  /** Achat API Key */
-  achat: string | null;
-  /** Azure Deployment Id（与文档中 deployment 一致） */
-  achatDeployment: string | null;
 };
 
 export function readLlmHeadersFromRequest(request: Request): LlmHeaders {
@@ -51,8 +37,6 @@ export function readLlmHeadersFromRequest(request: Request): LlmHeaders {
     anthropic: request.headers.get("x-anthropic-key"),
     deepseek: request.headers.get("x-deepseek-key"),
     gemini: request.headers.get("x-gemini-key"),
-    achat: request.headers.get("x-achat-key"),
-    achatDeployment: request.headers.get("x-achat-deployment"),
   };
 }
 
@@ -93,11 +77,6 @@ type ResolvedRoute =
       provider: "gemini";
       apiKey: string;
       apiModel: string;
-    }
-  | {
-      provider: "achatAzure";
-      apiKey: string;
-      deploymentId: string;
     };
 
 export function resolveRoute(
@@ -172,86 +151,6 @@ export function resolveRoute(
         apiKey,
         apiModel: "gemini-2.0-flash",
       };
-    }
-    case "achat-azure": {
-      const apiKey = pickKey(headers.achat, process.env.ACHAT_API_KEY);
-      const deploymentId = pickKey(
-        headers.achatDeployment,
-        process.env.ACHAT_DEPLOYMENT_ID,
-      );
-      if (!apiKey) {
-        return {
-          error:
-            "缺少 Achat API Key（请求头 x-achat-key 或环境变量 ACHAT_API_KEY）",
-        };
-      }
-      if (!deploymentId) {
-        return {
-          error:
-            "缺少 Deployment Id（请求头 x-achat-deployment 或环境变量 ACHAT_DEPLOYMENT_ID），请填写公司文档中的部署名 / deployment id。",
-        };
-      }
-      return {
-        provider: "achatAzure",
-        apiKey,
-        deploymentId: deploymentId.trim(),
-      };
-    }
-  }
-}
-
-async function chatAchatAzure(
-  systemPrompt: string,
-  userMessage: string,
-  apiKey: string,
-  deploymentId: string,
-): Promise<string> {
-  const client = new AzureOpenAI({
-    endpoint: ACHAT_AZURE_ENDPOINT,
-    apiKey,
-    apiVersion: ACHAT_AZURE_API_VERSION,
-  });
-
-  const completion = await client.chat.completions.create({
-    model: deploymentId,
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userMessage },
-    ],
-  });
-
-  const text = completion.choices[0]?.message?.content;
-  if (!text) {
-    throw new Error("模型返回内容为空");
-  }
-  return text;
-}
-
-async function* streamAchatAzure(
-  systemPrompt: string,
-  userMessage: string,
-  apiKey: string,
-  deploymentId: string,
-): AsyncGenerator<string, void, undefined> {
-  const client = new AzureOpenAI({
-    endpoint: ACHAT_AZURE_ENDPOINT,
-    apiKey,
-    apiVersion: ACHAT_AZURE_API_VERSION,
-  });
-
-  const stream = await client.chat.completions.create({
-    model: deploymentId,
-    stream: true,
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userMessage },
-    ],
-  });
-
-  for await (const chunk of stream) {
-    const piece = chunk.choices[0]?.delta?.content;
-    if (piece) {
-      yield piece;
     }
   }
 }
@@ -423,16 +322,6 @@ export async function invokeLlm(
     return { markdown, provider: "gemini" };
   }
 
-  if (route.provider === "achatAzure") {
-    const markdown = await chatAchatAzure(
-      systemPrompt,
-      userMessage,
-      route.apiKey,
-      route.deploymentId,
-    );
-    return { markdown, provider: "achatAzure" };
-  }
-
   const markdown = await chatOpenAI(
     systemPrompt,
     userMessage,
@@ -481,19 +370,6 @@ export async function invokeLlmStream(
       yield text;
     }
     return { textStream: once(), provider: "gemini" };
-  }
-
-  if (route.provider === "achatAzure") {
-    const { apiKey, deploymentId } = route;
-    async function* gen(): AsyncGenerator<string, void, undefined> {
-      yield* streamAchatAzure(
-        systemPrompt,
-        userMessage,
-        apiKey,
-        deploymentId,
-      );
-    }
-    return { textStream: gen(), provider: "achatAzure" };
   }
 
   const { apiKey, apiModel, baseURL, provider } = route;

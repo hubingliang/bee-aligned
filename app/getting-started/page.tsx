@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "快速开始 — PreVibe",
+  title: "快速开始 — AlignSpec",
   description:
     "配置 API Key、选择模型与角色，完成导入 → 需求稿 → Prompt 手册的完整路径。",
 };
@@ -42,7 +42,7 @@ const sections = [
         <ul className="mt-3 list-disc space-y-1 pl-5">
           <li>GPT 系列 → OpenAI API Key</li>
           <li>Claude → Anthropic API Key</li>
-          <li>DeepSeek / Gemini / Achat 等 → 按表单提示填写</li>
+          <li>DeepSeek / Gemini 等 → 按表单提示填写</li>
         </ul>
         <p className="mt-3">
           Key 仅保存在<strong>本机浏览器</strong>，通过请求头发往<strong>你的</strong>

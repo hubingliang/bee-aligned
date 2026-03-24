@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { ShinyText } from "@/components/shiny-text";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
@@ -18,7 +19,7 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
             <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <Sparkles className="size-[18px]" strokeWidth={1.75} />
             </span>
-            <span className="truncate font-semibold tracking-tight">PreVibe</span>
+            <ShinyText className="truncate">AlignSpec</ShinyText>
           </Link>
           <nav
             aria-label="站内导航"

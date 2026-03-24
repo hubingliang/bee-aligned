@@ -1,51 +1,26 @@
-# PreVibe
+# AlignSpec
 
-把杂乱需求整理成**结构化 Markdown 需求稿**，经**逻辑审计**与 **Vibe（逻辑密度）** 提示后，按角色生成 **Prompt 手册**（生成文档中第一节标题为 **Logic Blueprint**，含 Mermaid、测试矩阵与 `.cursorrules` 建议等）。
+## 这是什么
 
-- 技术栈：**Next.js**（App Router）+ **shadcn/ui**
-- 主界面：**`/workspace`**；另有 **`/`** 介绍页、**`/getting-started`**、**`/help`**
+AlignSpec 帮你把**会议记录、零散 PRD、口头需求**整理成**可协作的长文档**：先变成结构清晰的 **Markdown 需求稿**，再按你的角色（产品 / 前端 / 后端）生成一份适合交给 **Cursor 与真实仓库上下文**使用的 **Prompt 手册**。手册正文以 **Logic Blueprint** 为纲，附带流程说明、约束、分步任务、测试思路与 `.cursorrules` 类规则建议——重点是**对齐逻辑与边界**，而不是替你写完整业务代码。
 
-## 本地开发
+## 能帮你解决什么
 
-```bash
-pnpm install
-pnpm dev
-```
+- **需求太碎、太口语**：一键「整理」成带标题、列表、条件分支可读的需求稿，减少遗漏与歧义。  
+- **逻辑容易打架**：在需求稿阶段做**逻辑审计**，标出潜在矛盾（Critical / Warning），方便你先改文档再让模型执行。  
+- **提示词太长、太散**：用 **Vibe（逻辑密度）** 做轻量参考——提醒你补分支、数据与失败路径，再生成**成体系的 Prompt 手册**，方便复制进对话或保存为团队资产。  
+- **角色不同、侧重点不同**：同一需求可切换 **Target Role**，让生成内容更贴产品决策、界面实现或后端与数据。
 
-浏览器打开 [http://localhost:3000](http://localhost:3000)。
+## 怎么用
 
-```bash
-pnpm run build   # 生产构建
-pnpm exec tsc --noEmit   # 仅类型检查
-```
+1. **打开工作台**（部署后的站点里进入工作台页面；本地或自托管同理）。  
+2. **导入**：拖拽 PDF / Word / Markdown / 文本，或直接粘贴；也可先手动整理成一段原始文字。  
+3. **整理成需求稿**：使用「Clean」类能力，把杂乱输入变成结构化 Markdown，再在编辑器里改到满意。  
+4. **看审计与 Vibe**：右侧可查看逻辑冲突与密度提示；有 Critical 时仍建议你**先改需求稿**，再生成手册。  
+5. **生成 Prompt 手册**：在内容就绪后执行生成（如「Vibe Check」），在第三步阅读、复制全文，或按区块推进实现。  
 
-## API Key 放哪里
+更细的步骤说明、模型与密钥配置、常见问题，请使用站内 **「快速开始」** 与 **「帮助中心」**（若已部署对应页面）。
 
-默认在浏览器 **localStorage** 中保存各厂商 Key，请求经你的 Next 服务端转发到模型（见 `lib/llm.ts` 中的请求头约定）。
+## 隐私与安全（使用者须知）
 
-可选：在部署环境中配置**服务端环境变量**，作为未带浏览器 Key 时的回退（与请求头二选一，由 `pickKey` 合并）：
-
-| 变量 | 用途 |
-|------|------|
-| `ANTHROPIC_API_KEY` | Claude 模型 |
-| `OPENAI_API_KEY` | GPT-4o / GPT-4o-mini |
-| `OPENAI_BASE_URL` | 可选，OpenAI 兼容 API 基址，默认官方 `https://api.openai.com/v1` |
-| `DEEPSEEK_API_KEY` | DeepSeek |
-| `DEEPSEEK_BASE_URL` | 可选，默认 `https://api.deepseek.com` |
-| `GEMINI_API_KEY` | Google Gemini |
-| `ACHAT_API_KEY` | 公司 Achat → Azure 代理 |
-| `ACHAT_DEPLOYMENT_ID` | 与 Achat 配合的 Deployment Id |
-
-**说明：** 本项目根目录未附带 `.env.example`；若需团队统一约定，可自行增加并在 `.gitignore` 中忽略 `.env*.local`。
-
-## 术语与界面语言
-
-对外产品文案以**中文**为主；文档结构名 **Logic Blueprint** 等与模型输出对齐，保留英文。详见 [`docs/TERMINOLOGY.md`](docs/TERMINOLOGY.md)。
-
-## 添加 shadcn 组件
-
-```bash
-npx shadcn@latest add button
-```
-
-组件生成在 `components/ui/`。
+**API Key** 默认只存在**你自己的浏览器**里，通过你访问的站点转发到模型服务；请勿在公共或共享设备上保存密钥。具体行为以你使用的部署说明为准。

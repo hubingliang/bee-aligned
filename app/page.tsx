@@ -12,7 +12,7 @@ import {
 import { ArrowRight, FileText, Sparkles, Wand2 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "PreVibe — 从需求到 Prompt 手册（Logic Blueprint）",
+  title: "AlignSpec — 从需求到 Prompt 手册（Logic Blueprint）",
   description:
     "导入 PRD、整理需求稿（Markdown）、逻辑审计与 Vibe 分数，按角色生成 Prompt 手册与 Cursor 规则建议。",
 };

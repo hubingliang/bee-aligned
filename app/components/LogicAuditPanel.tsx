@@ -211,7 +211,9 @@ export function LogicAuditPanel({
             </span>
           ) : null}
           {!loading && conflicts.length === 0 && keyReady && refinedMd.trim() ? (
-            <span className="text-[11px] text-muted-foreground">No conflicts</span>
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-300">
+              Aligned
+            </span>
           ) : null}
         </div>
 
@@ -230,8 +232,8 @@ export function LogicAuditPanel({
           </Alert>
         ) : null}
         {keyReady && !error && conflicts.length === 0 && !loading && refinedMd.trim() ? (
-          <Alert className="border-orange-200/40 bg-orange-50/40 dark:border-orange-900/40 dark:bg-orange-950/25">
-            <AlertDescription className="text-[11px] leading-relaxed text-orange-900/90 dark:text-orange-100/90">
+          <Alert className="border-emerald-200/60 bg-emerald-50/70 dark:border-emerald-900/50 dark:bg-emerald-950/35">
+            <AlertDescription className="text-[11px] leading-relaxed text-emerald-950/90 dark:text-emerald-100/95">
               审计未发现冲突；内容变更约 2 秒后会重新检查。
             </AlertDescription>
           </Alert>

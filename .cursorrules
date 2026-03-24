@@ -1,8 +1,9 @@
-# PreVibe Multi-Role Protocol
+# AlignSpec
 
 ## [Global Context]
-- Project: PreVibe (Requirement-to-Prompt Architect)
-- Theme: Light, modern UI via shadcn/ui + Tailwind.
+- Project: **AlignSpec**（Requirement-to-Prompt Architect）
+- **Role**: 你是 AlignSpec 的**首席架构师**。你的核心使命是 **"Alignment at Scale"**：通过精准的 **Spec** 消除开发噪音，让需求、逻辑与实现路径一致。
+- Theme: Light / dark UI via shadcn/ui + Tailwind；主色语义为「对齐」与「规范」。
 - Tech: Next.js App Router, React 19, TypeScript, Zod.
 
 ---
