@@ -1,3 +1,7 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -17,9 +21,36 @@ function getExtension(filename: string): string {
   return filename.slice(i + 1).toLowerCase();
 }
 
+/**
+ * Vercel / Node 下 pdf.js 需显式 worker 路径，否则 getDocument 常失败。
+ * `pdfjs-dist` 已列为直接依赖，保证 `node_modules/pdfjs-dist` 可解析。
+ * 不同大版本 worker 路径可能不同，故做多候选。
+ */
+function resolvePdfWorkerFileUrl(): string | undefined {
+  const root = path.join(process.cwd(), "node_modules", "pdfjs-dist");
+  const candidates = [
+    path.join(root, "legacy", "build", "pdf.worker.mjs"),
+    path.join(root, "build", "pdf.worker.mjs"),
+    path.join(root, "build", "pdf.worker.min.mjs"),
+  ];
+  for (const p of candidates) {
+    if (existsSync(p)) return pathToFileURL(p).href;
+  }
+  return undefined;
+}
+
+function configurePdfWorker(PDFParse: {
+  setWorker?: (src: string | undefined) => string;
+}): void {
+  if (typeof PDFParse.setWorker !== "function") return;
+  const href = resolvePdfWorkerFileUrl();
+  if (href) PDFParse.setWorker(href);
+}
+
 /** 动态导入，避免 pdf-parse/pdfjs 在部分 Serverless 环境初始化失败时拖垮整段路由模块加载（表现为 500 HTML 而非 JSON） */
 async function parsePdf(buffer: Buffer): Promise<string> {
   const { PDFParse } = await import("pdf-parse");
+  configurePdfWorker(PDFParse);
   const parser = new PDFParse({ data: buffer });
   try {
     const result = await parser.getText();
@@ -82,9 +113,17 @@ export async function POST(request: Request) {
         content = parsePlainText(buffer);
       }
     } catch (cause) {
+      const detail =
+        cause instanceof Error ? cause.message : String(cause).slice(0, 500);
       console.error("[parse] extraction failed", cause);
+      const label =
+        ext === "pdf" ? "PDF" : ext === "docx" ? "Word" : "文本";
       return NextResponse.json(
-        { error: "解析失败，可改用手动粘贴内容" },
+        {
+          error: `${label} 解析失败，可改用手动粘贴内容`,
+          detail,
+          kind: ext,
+        },
         { status: 422 },
       );
     }

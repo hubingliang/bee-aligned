@@ -416,9 +416,14 @@ export default function Page() {
         const data = await parseResponseJson<{
           error?: string;
           content?: string;
+          detail?: string;
         }>(res);
         if (!res.ok) {
-          throw new Error(data.error ?? "解析失败");
+          const msg = data.error ?? "解析失败";
+          const detail = data.detail?.trim();
+          throw new Error(
+            detail ? `${msg}（${detail}）` : msg,
+          );
         }
         if (typeof data.content !== "string") {
           throw new Error("无效的响应");
