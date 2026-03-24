@@ -1,5 +1,7 @@
 "use client";
 
+import "./spec-protocol-enter.css";
+
 import { SettingsForm } from "@/app/components/settings-form";
 import {
   AlertTriangle,
@@ -10,7 +12,6 @@ import {
   Loader2,
   Paperclip,
   RotateCw,
-  Sparkles,
   Upload,
   Wand2,
 } from "lucide-react";
@@ -27,12 +28,14 @@ import {
 } from "react";
 import ReactMarkdown from "react-markdown";
 
+import { BeeWaggleLogo } from "@/app/components/BeeWaggleLogo";
 import { AppHeader } from "@/app/components/AppHeader";
 import { WorkflowProgress } from "@/app/components/WorkflowProgress";
-import { LogicAuditPanel } from "@/app/components/LogicAuditPanel";
+import { AlignmentAuditPanel } from "@/app/components/AlignmentAuditPanel";
 import { MermaidBlock } from "@/app/components/MermaidBlock";
 import { RefineMarkdownEditor } from "@/app/components/RefineMarkdownEditor";
 import { VibeMeter } from "@/app/components/VibeMeter";
+import { normalizeAzureOpenAiDeploymentId } from "@/lib/azure-openai-deployments";
 import { formatMarkdown } from "@/lib/format-markdown";
 import { type AuditConflict } from "@/lib/logic-audit";
 import { cn } from "@/lib/utils";
@@ -72,25 +75,43 @@ import {
 } from "@/components/ui/tooltip";
 
 const STORAGE = {
+  openai: "beealigned_openai_key",
+  anthropic: "beealigned_anthropic_key",
+  deepseek: "beealigned_deepseek_key",
+  gemini: "beealigned_gemini_key",
+  azureOpenaiEndpoint: "beealigned_azure_openai_endpoint",
+  azureOpenaiKey: "beealigned_azure_openai_key",
+  azureOpenaiDeployment: "beealigned_azure_openai_deployment",
+} as const;
+
+/** 兼容历史 localStorage key（alignspec_ / previbe_；当前为 bealigned_*） */
+const STORAGE_LEGACY_ALIGN = {
   openai: "alignspec_openai_key",
   anthropic: "alignspec_anthropic_key",
   deepseek: "alignspec_deepseek_key",
   gemini: "alignspec_gemini_key",
+  azureOpenaiEndpoint: "alignspec_azure_openai_endpoint",
+  azureOpenaiKey: "alignspec_azure_openai_key",
+  azureOpenaiDeployment: "alignspec_azure_openai_deployment",
 } as const;
 
-/** 从 PreVibe 更名后仍读取旧 key，避免用户重复填 Key */
-const STORAGE_LEGACY = {
+const STORAGE_LEGACY_PREV = {
   openai: "previbe_openai_key",
   anthropic: "previbe_anthropic_key",
   deepseek: "previbe_deepseek_key",
   gemini: "previbe_gemini_key",
+  azureOpenaiEndpoint: "previbe_azure_openai_endpoint",
+  azureOpenaiKey: "previbe_azure_openai_key",
+  azureOpenaiDeployment: "previbe_azure_openai_deployment",
 } as const;
 
 function readStorageField(id: keyof typeof STORAGE): string {
   if (typeof window === "undefined") return "";
   const next = localStorage.getItem(STORAGE[id]);
   if (next != null && next.length > 0) return next;
-  return localStorage.getItem(STORAGE_LEGACY[id]) ?? "";
+  const legacyA = localStorage.getItem(STORAGE_LEGACY_ALIGN[id]);
+  if (legacyA != null && legacyA.length > 0) return legacyA;
+  return localStorage.getItem(STORAGE_LEGACY_PREV[id]) ?? "";
 }
 
 const MODEL_OPTIONS = [
@@ -99,6 +120,10 @@ const MODEL_OPTIONS = [
   { value: "gpt-4o-mini", label: "GPT-4o-mini" },
   { value: "deepseek-v3", label: "DeepSeek-V3" },
   { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
+  {
+    value: "azure-openai",
+    label: "Azure OpenAI（自填 Endpoint / 部署）",
+  },
 ] as const;
 
 const TARGET_ROLE_OPTIONS = [
@@ -111,7 +136,16 @@ type ModelId = (typeof MODEL_OPTIONS)[number]["value"];
 type TargetRoleId = (typeof TARGET_ROLE_OPTIONS)[number]["value"];
 
 type KeySlots = Partial<
-  Record<"openai" | "anthropic" | "deepseek" | "gemini", string>
+  Record<
+    | "openai"
+    | "anthropic"
+    | "deepseek"
+    | "gemini"
+    | "azureOpenaiEndpoint"
+    | "azureOpenaiKey"
+    | "azureOpenaiDeployment",
+    string
+  >
 >;
 
 function hasKeyForModel(model: ModelId, keys: KeySlots): boolean {
@@ -126,6 +160,12 @@ function hasKeyForModel(model: ModelId, keys: KeySlots): boolean {
       return Boolean(k("deepseek"));
     case "gemini-2.0-flash":
       return Boolean(k("gemini"));
+    case "azure-openai":
+      return (
+        Boolean(k("azureOpenaiEndpoint")) &&
+        Boolean(k("azureOpenaiKey")) &&
+        Boolean(k("azureOpenaiDeployment"))
+      );
     default:
       return false;
   }
@@ -134,7 +174,12 @@ function hasKeyForModel(model: ModelId, keys: KeySlots): boolean {
 /** 当前所选模型对应的密钥槽位 */
 function keySlotForModel(
   model: ModelId,
-): "openai" | "anthropic" | "deepseek" | "gemini" {
+):
+  | "openai"
+  | "anthropic"
+  | "deepseek"
+  | "gemini"
+  | "azureOpenai" {
   switch (model) {
     case "claude-3-5-sonnet-20241022":
       return "anthropic";
@@ -145,6 +190,8 @@ function keySlotForModel(
       return "deepseek";
     case "gemini-2.0-flash":
       return "gemini";
+    case "azure-openai":
+      return "azureOpenai";
     default:
       return "openai";
   }
@@ -243,6 +290,9 @@ export default function Page() {
     anthropic: "",
     deepseek: "",
     gemini: "",
+    azureOpenaiEndpoint: "",
+    azureOpenaiKey: "",
+    azureOpenaiDeployment: "gpt4o-mini",
   });
   const [keysHydrated, setKeysHydrated] = useState(false);
 
@@ -273,6 +323,11 @@ export default function Page() {
       anthropic: readStorageField("anthropic"),
       deepseek: readStorageField("deepseek"),
       gemini: readStorageField("gemini"),
+      azureOpenaiEndpoint: readStorageField("azureOpenaiEndpoint"),
+      azureOpenaiKey: readStorageField("azureOpenaiKey"),
+      azureOpenaiDeployment: normalizeAzureOpenAiDeploymentId(
+        readStorageField("azureOpenaiDeployment"),
+      ),
     });
     setKeysHydrated(true);
   }, []);
@@ -283,6 +338,15 @@ export default function Page() {
     localStorage.setItem(STORAGE.anthropic, apiKeys.anthropic);
     localStorage.setItem(STORAGE.deepseek, apiKeys.deepseek);
     localStorage.setItem(STORAGE.gemini, apiKeys.gemini);
+    localStorage.setItem(
+      STORAGE.azureOpenaiEndpoint,
+      apiKeys.azureOpenaiEndpoint,
+    );
+    localStorage.setItem(STORAGE.azureOpenaiKey, apiKeys.azureOpenaiKey);
+    localStorage.setItem(
+      STORAGE.azureOpenaiDeployment,
+      apiKeys.azureOpenaiDeployment,
+    );
    }, [apiKeys, keysHydrated]);
 
   /** 只带当前模型对应的密钥头，避免误把 Gemini 密钥随 x-openai-key 发给 OpenAI */
@@ -294,6 +358,9 @@ export default function Page() {
       "x-anthropic-key": "",
       "x-deepseek-key": "",
       "x-gemini-key": "",
+      "x-azure-openai-endpoint": "",
+      "x-azure-openai-key": "",
+      "x-azure-openai-deployment": "",
     } as const;
     switch (slot) {
       case "openai":
@@ -304,6 +371,13 @@ export default function Page() {
         return { ...base, "x-deepseek-key": apiKeys.deepseek };
       case "gemini":
         return { ...base, "x-gemini-key": apiKeys.gemini };
+      case "azureOpenai":
+        return {
+          ...base,
+          "x-azure-openai-endpoint": apiKeys.azureOpenaiEndpoint,
+          "x-azure-openai-key": apiKeys.azureOpenaiKey,
+          "x-azure-openai-deployment": apiKeys.azureOpenaiDeployment,
+        };
       default:
         return { ...base };
     }
@@ -551,7 +625,7 @@ export default function Page() {
     [refinedMd, auditConflicts],
   );
 
-  /** 主生成：仅在有需求稿正文或请求进行中时限制；不因审计 Critical / 未配 Key 禁用 */
+  /** 主生成：仅在有需求稿正文或请求进行中时限制；不因 Alignment Audit Critical / 未配 Key 禁用 */
   const vibeGenerateDisabled = isGenerating || !refinedMd.trim();
 
   const handleVibeCheckClick = useCallback(() => {
@@ -718,7 +792,7 @@ export default function Page() {
                       </h2>
                     </div>
                     <p className="mt-1 text-sm font-normal text-muted-foreground">
-                      编辑右侧逻辑审计提示，直至 Vibe 与冲突状态满意。
+                      编辑右侧 Alignment Audit 提示，直至 Vibe 与冲突状态满意。
                     </p>
                   </div>
                   <div
@@ -752,7 +826,7 @@ export default function Page() {
                       需求稿预览
                     </h2>
                     <p className="mt-1 text-sm font-normal text-muted-foreground">
-                      生成 Prompt 手册前的最终 Markdown（只读预览）。
+                      生成 Final Spec 前的最终 Markdown（只读预览）。
                     </p>
                   </div>
                   <Card className="min-h-0 flex-1 gap-0 py-0">
@@ -767,7 +841,10 @@ export default function Page() {
               </section>
             </ResizablePanel>
 
-            <ResizableHandle className="bg-border/80" withHandle />
+            <ResizableHandle
+              className="bg-border/70 [&::after]:bg-gradient-to-b [&::after]:from-accent/20 [&::after]:via-accent [&::after]:to-accent/20 [&::after]:shadow-[0_0_12px_hsla(51,100%,50%,0.22)]"
+              withHandle
+            />
 
             <ResizablePanel className="min-h-0 min-w-0" defaultSize={42} minSize={28}>
               <aside className="flex h-full min-h-0 flex-col gap-6 overflow-hidden rounded-[24px] border border-border/70 bg-muted/30 p-6 lg:p-8">
@@ -783,14 +860,14 @@ export default function Page() {
                     </li>
                     <li className="flex gap-2">
                       <span className="font-semibold text-primary">2.</span>
-                      需求稿：对照逻辑审计与 Vibe 分数打磨内容。
+                      需求稿：对照 Alignment Audit 与 Vibe 分数打磨内容。
                     </li>
                     <li className="flex gap-2">
                       <span className="font-semibold text-primary">3.</span>
                       Vibe Check：生成面向{" "}
                       {TARGET_ROLE_OPTIONS.find((o) => o.value === targetRole)
                         ?.label ?? targetRole}{" "}
-                      的 Prompt 手册（Logic Blueprint）。
+                      的 Final Spec（Logic Blueprint）。
                     </li>
                   </ul>
                   <p className="text-xs font-normal leading-relaxed text-muted-foreground">
@@ -820,7 +897,7 @@ export default function Page() {
                     suggestions={vibeSuggestions}
                   />
                   <div className="min-h-0 flex-1 overflow-y-auto">
-                    <LogicAuditPanel
+                    <AlignmentAuditPanel
                       apiHeaders={apiHeaders}
                       conflicts={auditConflicts}
                       error={auditError}
@@ -841,7 +918,7 @@ export default function Page() {
                   <div className="flex shrink-0 flex-wrap items-start justify-between gap-3">
                     <div>
                       <h3 className="text-sm font-semibold text-foreground">
-                        Prompt 手册（Logic Blueprint）
+                        Final Spec（Logic Blueprint）
                       </h3>
                       <p className="mt-0.5 text-xs font-normal text-muted-foreground">
                         文档内章节标题为 Logic Blueprint；面向 Cursor，支持 Mermaid。
@@ -900,7 +977,7 @@ export default function Page() {
                     {!markdown && !error ? (
                       <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/20 px-6 py-12 text-center">
                         <p className="text-sm font-normal text-muted-foreground">
-                          等待生成结果…
+                          等待 Final Spec…
                         </p>
                       </div>
                     ) : null}
@@ -1047,10 +1124,7 @@ export default function Page() {
                     variant="default"
                     onClick={handleVibeCheckClick}
                   >
-                    <Sparkles
-                      className="size-5 shrink-0 opacity-95"
-                      strokeWidth={1.75}
-                    />
+                    <BeeWaggleLogo className="size-5 shrink-0 opacity-95" />
                     Vibe Check (Generate Prompt)
                   </Button>
                 </>
@@ -1077,7 +1151,7 @@ export default function Page() {
                     onClick={handleVibeCheckClick}
                   >
                     <RotateCw className="size-5 shrink-0" strokeWidth={2} />
-                    重新生成 Prompt 手册
+                    重新生成 Final Spec
                   </Button>
                 </>
               )}
@@ -1097,7 +1171,7 @@ export default function Page() {
                 className="size-7 shrink-0 animate-spin text-primary"
               />
               <p className="text-base font-semibold text-foreground">
-                正在生成 Prompt 手册…
+                正在生成 Final Spec…
               </p>
             </div>
           </div>
@@ -1111,7 +1185,7 @@ export default function Page() {
             <AlertDialogHeader>
               <AlertDialogTitle>Vibe 分数偏低</AlertDialogTitle>
               <AlertDialogDescription>
-                当前逻辑密度偏低，生成 Prompt 手册时模型可能过度推断。是否仍要继续生成？
+                当前逻辑密度偏低，生成 Final Spec 时模型可能过度推断。是否仍要继续生成？
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

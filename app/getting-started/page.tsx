@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "快速开始 — AlignSpec",
+  title: "快速开始 — Bee Aligned",
   description:
-    "配置 API Key、选择模型与角色，完成导入 → 需求稿 → Prompt 手册的完整路径。",
+    "配置 API Key、选择模型与角色，完成导入 → 需求稿 → Final Spec 的完整路径。",
 };
 
 const sections = [
@@ -20,7 +20,7 @@ const sections = [
       <>
         <p>
           支持常见需求来源：<strong>PDF、Word、Markdown、纯文本</strong>
-          。内容越长，Clean 与审计耗时可能越高；建议单次先聚焦一条业务线或一个功能域。
+          。内容越长，Clean 与 Alignment Audit 耗时可能越高；建议单次先聚焦一条业务线或一个功能域。
         </p>
         <p className="mt-3">请使用现代浏览器（Chrome / Edge / Safari / Firefox 最新版）。</p>
       </>
@@ -42,7 +42,7 @@ const sections = [
         <ul className="mt-3 list-disc space-y-1 pl-5">
           <li>GPT 系列 → OpenAI API Key</li>
           <li>Claude → Anthropic API Key</li>
-          <li>DeepSeek / Gemini 等 → 按表单提示填写</li>
+          <li>DeepSeek / Gemini / Azure OpenAI 等 → 按表单提示填写</li>
         </ul>
         <p className="mt-3">
           Key 仅保存在<strong>本机浏览器</strong>，通过请求头发往<strong>你的</strong>
@@ -59,10 +59,10 @@ const sections = [
         <p>
           顶栏可选择<strong>模型</strong>；设置中可选择{" "}
           <strong>Target Role</strong>（Product / Frontend /
-          Backend），将影响 Prompt 手册（Logic Blueprint）的叙述侧重。
+          Backend），将影响 Final Spec（Logic Blueprint）的叙述侧重。
         </p>
         <p className="mt-3">
-          切换模型后，请确认已为该模型配置 Key，否则 Clean、审计与生成会失败。
+          切换模型后，请确认已为该模型配置 Key，否则 Clean、Alignment Audit 与生成会失败。
         </p>
       </>
     ),
@@ -79,13 +79,13 @@ const sections = [
           </li>
           <li>
             <strong>需求稿</strong>：在编辑器中修改 Markdown；右侧可查看{" "}
-            <strong>逻辑审计</strong>与 <strong>Vibe</strong>。存在{" "}
+            <strong>Alignment Audit</strong>与 <strong>Vibe</strong>。存在{" "}
             <strong>Critical</strong> 冲突时，建议先消再点生成。
           </li>
           <li>
-            <strong>Prompt 手册</strong>：点击{" "}
+            <strong>Final Spec</strong>：点击{" "}
             <strong>Vibe Check (Generate Prompt)</strong>，在 Step 3 查看
-            Prompt 手册（文档内章节为 Logic Blueprint），可复制全文或跳转至「Prompt 手册」区域。
+            Final Spec（文档内章节为 Logic Blueprint），可复制全文或跳转至侧栏对应区域。
           </li>
         </ol>
       </>

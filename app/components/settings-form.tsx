@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AZURE_OPENAI_DEPLOYMENT_IDS } from "@/lib/azure-openai-deployments";
 import { cn } from "@/lib/utils";
 
 export type ApiKeysState = {
@@ -18,6 +19,9 @@ export type ApiKeysState = {
   anthropic: string;
   deepseek: string;
   gemini: string;
+  azureOpenaiEndpoint: string;
+  azureOpenaiKey: string;
+  azureOpenaiDeployment: string;
 };
 
 type SettingsFormProps = {
@@ -27,7 +31,12 @@ type SettingsFormProps = {
   targetRole: string;
   onTargetRoleChange: (v: string) => void;
   targetRoleOptions: readonly { value: string; label: string }[];
-  activeKeySlot: "openai" | "anthropic" | "deepseek" | "gemini";
+  activeKeySlot:
+    | "openai"
+    | "anthropic"
+    | "deepseek"
+    | "gemini"
+    | "azureOpenai";
   apiKeys: ApiKeysState;
   setApiKeys: Dispatch<SetStateAction<ApiKeysState>>;
   className?: string;
@@ -94,7 +103,9 @@ export function SettingsForm({
               ? "Claude 使用 Anthropic API Key。"
               : activeKeySlot === "deepseek"
                 ? "DeepSeek-V3 使用 DeepSeek API Key。"
-                : "Gemini 使用 Google AI Studio / Cloud 的 API Key（与 Generative Language API 兼容）。"}
+                : activeKeySlot === "azureOpenai"
+                  ? "使用你在 Microsoft Azure 门户中为 Azure OpenAI 资源复制的 Endpoint、密钥，以及模型部署（Deployment）名称。"
+                  : "Gemini 使用 Google AI Studio / Cloud 的 API Key（与 Generative Language API 兼容）。"}
         </p>
 
         {activeKeySlot === "openai" ? (
@@ -158,6 +169,63 @@ export function SettingsForm({
                 setApiKeys((k) => ({ ...k, gemini: e.target.value }))
               }
             />
+          </div>
+        ) : null}
+
+        {activeKeySlot === "azureOpenai" ? (
+          <div className="flex flex-col gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="k-az-endpoint">Endpoint</Label>
+              <Input
+                autoComplete="off"
+                id="k-az-endpoint"
+                placeholder="https://<资源名>.openai.azure.com"
+                type="text"
+                value={apiKeys.azureOpenaiEndpoint ?? ""}
+                onChange={(e) =>
+                  setApiKeys((k) => ({
+                    ...k,
+                    azureOpenaiEndpoint: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="k-az-key">API Key</Label>
+              <Input
+                autoComplete="off"
+                id="k-az-key"
+                placeholder="Azure OpenAI 资源密钥"
+                type="password"
+                value={apiKeys.azureOpenaiKey ?? ""}
+                onChange={(e) =>
+                  setApiKeys((k) => ({ ...k, azureOpenaiKey: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="k-az-deploy">Deployment</Label>
+              <Select
+                value={apiKeys.azureOpenaiDeployment ?? "gpt4o-mini"}
+                onValueChange={(v) =>
+                  setApiKeys((k) => ({ ...k, azureOpenaiDeployment: v }))
+                }
+              >
+                <SelectTrigger id="k-az-deploy" className="w-full">
+                  <SelectValue placeholder="选择部署名" />
+                </SelectTrigger>
+                <SelectContent>
+                  {AZURE_OPENAI_DEPLOYMENT_IDS.map((id) => (
+                    <SelectItem key={id} value={id}>
+                      {id}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
+                须与 Azure 门户中部署名一致；若不一致请在门户将部署重命名为上述之一。
+              </p>
+            </div>
           </div>
         ) : null}
       </div>

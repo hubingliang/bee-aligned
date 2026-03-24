@@ -16,9 +16,9 @@ function vibeFeedback(score: number): string {
     return "逻辑密度偏低，可补充分支、数据结构与错误路径。";
   }
   if (score <= 70) {
-    return "逻辑正在成型，建议在生成手册前补充约束与失败场景。";
+    return "逻辑正在成型，建议在生成 Final Spec 前补充约束与失败场景。";
   }
-  return "逻辑密度高，可以生成执行手册。";
+  return "逻辑密度高，可以生成 Final Spec。";
 }
 
 const RING_SIZE = 128;

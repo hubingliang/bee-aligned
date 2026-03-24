@@ -13,10 +13,10 @@ const explainRequestSchema = z.object({
   }),
 });
 
-const EXPLAIN_SYSTEM_PROMPT = `你是资深需求分析师。用户有一份需求 Markdown，以及一条「逻辑审计」结论（可能指出状态矛盾、权限冲突、流程断裂或术语不一）。
+const EXPLAIN_SYSTEM_PROMPT = `你是资深需求分析师。用户有一份需求 Markdown，以及一条「Alignment Audit」结论（可能指出状态矛盾、权限冲突、流程断裂或术语不一）。
 
 你的任务：
-1. 结合全文上下文，解释**为什么**审计结论认为存在矛盾或风险（指出相互抵触或缺失的表述）。
+1. 结合全文上下文，解释**为什么**该结论认为存在矛盾或风险（指出相互抵触或缺失的表述）。
 2. 给出**可执行的修改建议**（如何改文档措辞或补全流程），用 Markdown 分点列出。
 
 不要输出 JSON；使用 Markdown 正文即可。语气专业、简洁。`;
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     "## 精炼需求（Markdown）",
     refinedMd.trim(),
     "",
-    "## 待解释的审计条目",
+    "## 待解释的 Alignment Audit 条目",
     `- 行号：${conflict.line}`,
     `- 级别：${conflict.type}`,
     `- 摘要：${conflict.reason}`,

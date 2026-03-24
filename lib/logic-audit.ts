@@ -1,6 +1,6 @@
 export type AuditConflictType = "Critical" | "Warning";
 
-/** 逻辑审计单条结果（与 /api/audit 返回一致） */
+/** Alignment Audit 单条结果（与 /api/audit 返回一致） */
 export type AuditConflict = {
   line: number;
   type: AuditConflictType;

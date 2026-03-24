@@ -2,7 +2,7 @@ import type { AuditConflict } from "@/lib/logic-audit";
 import { penaltiesFromConflicts } from "@/lib/logic-audit";
 
 export type VibeScoreResult = {
-  /** 0–100，侧重逻辑密度（Logic Density），已含逻辑审计扣分 */
+  /** 0–100，侧重逻辑密度（Logic Density），已含 Alignment Audit 扣分 */
   score: number;
   suggestions: string[];
 };
@@ -68,7 +68,7 @@ function visualNoiseRatio(md: string): number {
  * 根据 Refine Markdown 估算 **逻辑密度（Logic Density）**：
  * - 奖励：If/Then 类描述、数据模型、错误流。
  * - 惩罚：大量纯视觉描述（颜色、间距、样式词）而逻辑信号弱。
- * - 逻辑审计：每个 Critical −20，每个 Warning −5（在基础分上扣除）。
+ * - Alignment Audit：每个 Critical −20，每个 Warning −5（在基础分上扣除）。
  */
 export function calculateVibeScore(
   markdown: string,
@@ -123,11 +123,11 @@ export function calculateVibeScore(
     raw -= penalty;
     if (critical > 0) {
       suggestions.unshift(
-        `逻辑审计：${critical} 条 Critical（各 −20 分）。建议先修复需求稿再生成，以降低输出偏差。`,
+        `Alignment Audit：${critical} 条 Critical（各 −20 分）。建议先修复需求稿再生成 Final Spec，以降低输出偏差。`,
       );
     }
     if (warning > 0) {
-      suggestions.push(`逻辑审计：${warning} 条 Warning（各 −5 分）。`);
+      suggestions.push(`Alignment Audit：${warning} 条 Warning（各 −5 分）。`);
     }
   }
 
@@ -135,7 +135,7 @@ export function calculateVibeScore(
   const score = Math.round(raw);
 
   if (score >= 80) {
-    suggestions.push("逻辑密度高，适合生成执行手册。");
+    suggestions.push("逻辑密度高，适合生成 Final Spec。");
   }
 
   return {

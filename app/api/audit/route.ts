@@ -14,7 +14,7 @@ const conflictItemSchema = z.object({
   reason: z.string().min(1),
 });
 
-const AUDIT_SYSTEM_PROMPT = `你是一个极其严苛的系统分析师。请审计这份需求文档，找出以下冲突：
+const AUDIT_SYSTEM_PROMPT = `你是一个极其严苛的系统分析师。请对这份需求文档执行 Alignment Audit，找出以下冲突：
 
 1. **状态矛盾**：同一实体在不同描述下处于互斥状态。
 2. **权限冲突**：操作权限与用户角色描述不符。
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : "审计失败，请稍后重试";
+      err instanceof Error ? err.message : "Alignment Audit 失败，请稍后重试";
     const isConfig =
       message.includes("缺少") ||
       message.includes("API Key") ||

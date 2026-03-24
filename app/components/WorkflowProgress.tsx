@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 const STEP_HEADLINE: Record<1 | 2 | 3, string> = {
   1: "步骤 1 · 导入原始需求",
   2: "步骤 2 · 整理需求稿（Markdown）",
-  3: "步骤 3 · Prompt 手册（Logic Blueprint）",
+  3: "步骤 3 · Final Spec（Logic Blueprint）",
 };
 
 function StepIndicator({
@@ -27,7 +27,7 @@ function StepIndicator({
   const steps = [
     { n: 1 as const, label: "导入" },
     { n: 2 as const, label: "需求稿" },
-    { n: 3 as const, label: "手册" },
+    { n: 3 as const, label: "Final Spec" },
   ];
   return (
     <nav
@@ -68,7 +68,7 @@ function StepIndicator({
                   "max-w-[4.25rem] text-center text-xs font-medium leading-tight text-muted-foreground sm:max-w-none sm:text-sm",
                   isActive && "text-foreground",
                 )}
-                title={s.n === 3 ? "Prompt 手册" : undefined}
+                title={s.n === 3 ? "Final Spec" : undefined}
               >
                 {s.label}
               </span>
@@ -80,7 +80,7 @@ function StepIndicator({
   );
 }
 
-function scrollToPromptHandbook() {
+function scrollToFinalSpec() {
   document.getElementById("logic-blueprint")?.scrollIntoView({
     behavior: "smooth",
     block: "start",
@@ -104,10 +104,10 @@ export function WorkflowProgress({
       variant="outline"
       size="default"
       className="h-9 shrink-0 gap-2 px-3 text-sm"
-      onClick={scrollToPromptHandbook}
+      onClick={scrollToFinalSpec}
     >
       <FileText className="size-4" />
-      Prompt 手册
+      Final Spec
     </Button>
   ) : (
     <Tooltip>
@@ -121,13 +121,13 @@ export function WorkflowProgress({
             disabled
           >
             <FileText className="size-4 opacity-50" />
-            Prompt 手册
+            Final Spec
           </Button>
         </span>
       </TooltipTrigger>
       <TooltipContent side="bottom">
         <p className="max-w-xs text-xs">
-          完成「Vibe Check」生成 Prompt 手册后可跳转查看
+          完成「Vibe Check」生成 Final Spec 后可跳转查看
         </p>
       </TooltipContent>
     </Tooltip>

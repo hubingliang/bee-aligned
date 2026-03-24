@@ -1,5 +1,7 @@
 "use client";
 
+import "./shiny-text.css";
+
 import { cn } from "@/lib/utils";
 
 /** Magic UI 风格：渐变扫光，用于品牌名 */
@@ -14,7 +16,7 @@ export function ShinyText({
     <span
       className={cn(
         "inline-block bg-[length:200%_auto] bg-clip-text font-bold tracking-tighter text-transparent",
-        "bg-gradient-to-r from-foreground via-primary to-foreground",
+        "bg-gradient-to-r from-foreground via-accent to-foreground",
         "animate-shiny",
         className,
       )}

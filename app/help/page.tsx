@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "帮助中心 — AlignSpec",
+  title: "帮助中心 — Bee Aligned",
   description:
-    "模型与密钥、工作流、Vibe 与逻辑审计、Prompt 手册（Logic Blueprint）与常见问题。",
+    "模型与密钥、工作流、Vibe 与 Alignment Audit、Final Spec（Logic Blueprint）与常见问题。",
 };
 
 const faq = [
@@ -26,15 +26,15 @@ const faq = [
     a: "不同厂商使用不同密钥槽位。切换模型后请在设置中确认已为当前模型填写对应 Key（如 OpenAI / Anthropic 等）。",
   },
   {
-    q: "逻辑审计里的 Critical 与 Warning 是什么？",
+    q: "Alignment Audit 里的 Critical 与 Warning 是什么？",
     a: "Critical 表示可能存在严重逻辑矛盾；Warning 为提示级问题。界面不会因此禁用「Vibe Check」生成，但强烈建议先修改需求稿、消除或权衡 Critical 后再生成，以降低模型「脑补」风险。",
   },
   {
     q: "Vibe 分数低是什么意思？",
-    a: "Vibe 侧重「逻辑密度」启发式评分，并会受审计冲突影响；低分不代表一定错误，但生成时模型更容易「脑补」。界面会在极低分时提示确认。",
+    a: "Vibe 侧重「逻辑密度」启发式评分，并会受 Alignment Audit 冲突影响；低分不代表一定错误，但生成时模型更容易「脑补」。界面会在极低分时提示确认。",
   },
   {
-    q: "Prompt 手册（Logic Blueprint）里会包含完整业务代码吗？",
+    q: "Final Spec（Logic Blueprint）里会包含完整业务代码吗？",
     a: "产品设计为长篇协作提示：文档内章节标题为 Logic Blueprint，含伪代码、Mermaid、测试矩阵与 .cursorrules 建议，而非可直接粘贴进仓库的完整业务源码。",
   },
   {
@@ -64,7 +64,7 @@ export default function HelpPage() {
             <CardHeader>
               <CardTitle className="text-base">三步</CardTitle>
               <CardDescription>
-                导入原始内容 → Clean 为 Markdown 需求稿 → 按角色生成 Prompt 手册（文档内为
+                导入原始内容 → Clean 为 Markdown 需求稿 → 按角色生成 Final Spec（文档内为
                 Logic Blueprint，含 Mermaid、测试矩阵、.cursorrules 建议块）。
               </CardDescription>
             </CardHeader>
@@ -94,7 +94,7 @@ export default function HelpPage() {
               <CardDescription>
                 <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed">
                   <li>
-                    <strong>逻辑审计</strong>：防抖审计结束后，若检测到冲突，会提示「检测到 N
+                    <strong>Alignment Audit</strong>：防抖结束后，若检测到冲突，会提示「检测到 N
                     处潜在冲突」或「新增 M 处冲突，当前共 N 处」。
                   </li>
                 </ul>
@@ -103,7 +103,7 @@ export default function HelpPage() {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">缺少 API Key（Clean / 审计 / 生成）</CardTitle>
+              <CardTitle className="text-base">缺少 API Key（Clean / Alignment Audit / 生成）</CardTitle>
               <CardDescription className="text-sm leading-relaxed">
                 服务端在校验模型路由时可能返回类似：「缺少 OpenAI API Key（请求头 x-openai-key
                 或环境变量 OPENAI_API_KEY）」——不同厂商文案不同，含义均为：当前模型对应的 Key
@@ -132,7 +132,7 @@ export default function HelpPage() {
                 <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed">
                   <li>请求体不是合法的 JSON</li>
                   <li>参数校验失败（字段不符合约定时附带校验细节）</li>
-                  <li>降噪 / 审计 / 生成 / 解释 失败类：多为「…失败，请稍后重试」或上游模型错误信息原文</li>
+                  <li>降噪 / Alignment Audit / 生成 / 解释 失败类：多为「…失败，请稍后重试」或上游模型错误信息原文</li>
                 </ul>
               </CardDescription>
             </CardHeader>
@@ -141,7 +141,7 @@ export default function HelpPage() {
             <CardHeader>
               <CardTitle className="text-base">工作台内嵌错误</CardTitle>
               <CardDescription className="text-sm leading-relaxed">
-                解析、Clean、生成、逻辑审计、Explain 等失败时，错误文案显示在对应卡片或侧栏（红色小字），与上表同一来源时表述一致。
+                解析、Clean、生成、Alignment Audit、Explain 等失败时，错误文案显示在对应卡片或侧栏（红色小字），与上表同一来源时表述一致。
               </CardDescription>
             </CardHeader>
           </Card>

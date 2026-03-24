@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { HelpCircle, Settings2, Sparkles } from "lucide-react";
+import { HelpCircle, Settings2 } from "lucide-react";
 
-import { ModeToggle } from "@/components/mode-toggle";
+import { BeeWaggleLogo } from "@/app/components/BeeWaggleLogo";
+
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -29,12 +30,12 @@ const WORKFLOW_STEPS = [
   {
     title: "需求稿",
     subtitle: "Spec",
-    body: "将杂乱内容 Clean 为结构化 Markdown 需求稿，并配合逻辑审计与 Vibe 打磨。",
+    body: "将杂乱内容 Clean 为结构化 Markdown 需求稿，并配合 Alignment Audit 与 Vibe 打磨。",
   },
   {
-    title: "Prompt 手册",
+    title: "Final Spec",
     subtitle: "Logic Blueprint",
-    body: "按 Target Role 生成长篇协作提示（文档内标题为 Logic Blueprint），含 Mermaid、测试矩阵与 .cursorrules 建议等。",
+    body: "按 Target Role 生成长篇协作提示（Final Spec，文档内标题为 Logic Blueprint），含 Mermaid、测试矩阵与 .cursorrules 建议等。",
   },
 ] as const;
 
@@ -60,10 +61,10 @@ export function AppHeader({
             href="/"
             title="返回首页"
           >
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <Sparkles className="size-[18px]" strokeWidth={1.75} />
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-3xl bg-primary px-1.5 text-primary-foreground shadow-[0_8px_24px_-12px_hsl(var(--foreground)/0.28)]">
+              <BeeWaggleLogo className="size-[22px]" />
             </span>
-            <ShinyText className="truncate">AlignSpec</ShinyText>
+            <ShinyText className="truncate">Bee Aligned</ShinyText>
           </Link>
           <Popover>
             <PopoverTrigger asChild>
@@ -117,7 +118,6 @@ export function AppHeader({
               ))}
             </SelectContent>
           </Select>
-          <ModeToggle />
           <div className="relative shrink-0">
             <SheetTrigger asChild>
               <Button

@@ -97,7 +97,7 @@ function ConflictAlert({
   );
 }
 
-export type LogicAuditPanelProps = {
+export type AlignmentAuditPanelProps = {
   conflicts: AuditConflict[];
   loading: boolean;
   error: string | null;
@@ -108,7 +108,7 @@ export type LogicAuditPanelProps = {
   className?: string;
 };
 
-export function LogicAuditPanel({
+export function AlignmentAuditPanel({
   conflicts,
   loading,
   error,
@@ -117,7 +117,7 @@ export function LogicAuditPanel({
   model,
   apiHeaders,
   className,
-}: LogicAuditPanelProps) {
+}: AlignmentAuditPanelProps) {
   const [explainOpen, setExplainOpen] = useState(false);
   const [explainLoading, setExplainLoading] = useState(false);
   const [explainText, setExplainText] = useState<string | null>(null);
@@ -165,7 +165,7 @@ export function LogicAuditPanel({
     }
     if (conflicts.length > prevConflictLen.current && conflicts.length > 0) {
       const delta = conflicts.length - prevConflictLen.current;
-      toast.warning("逻辑审计", {
+      toast.warning("Alignment Audit", {
         description:
           prevConflictLen.current === 0
             ? `检测到 ${conflicts.length} 处潜在冲突`
@@ -188,11 +188,11 @@ export function LogicAuditPanel({
       >
         <div className="mb-0.5 flex flex-wrap items-center gap-2">
           <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Logic Audit
+            Alignment Audit
           </span>
           {loading ? (
             <Loader2
-              aria-label="Auditing"
+              aria-label="Alignment Audit running"
               className="size-3.5 animate-spin text-muted-foreground"
             />
           ) : null}
@@ -220,7 +220,7 @@ export function LogicAuditPanel({
         {!keyReady ? (
           <Alert className="border-dashed">
             <AlertDescription className="text-[11px] leading-relaxed">
-              Configure an API key in Settings to run Logic Audit.
+              Configure an API key in Settings to run Alignment Audit.
             </AlertDescription>
           </Alert>
         ) : null}
@@ -234,7 +234,7 @@ export function LogicAuditPanel({
         {keyReady && !error && conflicts.length === 0 && !loading && refinedMd.trim() ? (
           <Alert className="border-emerald-200/60 bg-emerald-50/70 dark:border-emerald-900/50 dark:bg-emerald-950/35">
             <AlertDescription className="text-[11px] leading-relaxed text-emerald-950/90 dark:text-emerald-100/95">
-              审计未发现冲突；内容变更约 2 秒后会重新检查。
+              Alignment Audit 未发现冲突；内容变更约 2 秒后会重新检查。
             </AlertDescription>
           </Alert>
         ) : null}
