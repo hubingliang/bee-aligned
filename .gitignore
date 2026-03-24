@@ -22,6 +22,9 @@
 .DS_Store
 *.pem
 
+# Cursor / agent skills cache (sources pinned in skills-lock.json)
+.agents/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
