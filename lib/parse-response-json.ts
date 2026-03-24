@@ -9,6 +9,12 @@ export async function parseResponseJson<T>(res: Response): Promise<T> {
       `服务端返回空内容（HTTP ${res.status}）。若在 Vercel 部署，请确认文件未超过平台请求体上限（约 4.5MB），或稍后重试。`,
     );
   }
+  const trimmed = text.trimStart();
+  if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html")) {
+    throw new Error(
+      `服务端返回了 HTML 错误页（HTTP ${res.status}），多为 Route 未捕获异常或依赖在部署环境加载失败。请查看 Vercel 函数日志。`,
+    );
+  }
   try {
     return JSON.parse(text) as T;
   } catch {

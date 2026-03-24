@@ -64,7 +64,7 @@ export function AppHeader({
             <span className="flex size-9 shrink-0 items-center justify-center rounded-3xl bg-primary px-1.5 text-primary-foreground shadow-[0_8px_24px_-12px_hsl(var(--foreground)/0.28)]">
               <BeeWaggleLogo className="size-[22px]" />
             </span>
-            <ShinyText className="truncate">Bee Aligned</ShinyText>
+            <ShinyText className="truncate">Bee Waggle</ShinyText>
           </Link>
           <Popover>
             <PopoverTrigger asChild>

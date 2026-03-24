@@ -76,6 +76,17 @@ import {
 } from "@/components/ui/tooltip";
 
 const STORAGE = {
+  openai: "beewaggle_openai_key",
+  anthropic: "beewaggle_anthropic_key",
+  deepseek: "beewaggle_deepseek_key",
+  gemini: "beewaggle_gemini_key",
+  azureOpenaiEndpoint: "beewaggle_azure_openai_endpoint",
+  azureOpenaiKey: "beewaggle_azure_openai_key",
+  azureOpenaiDeployment: "beewaggle_azure_openai_deployment",
+} as const;
+
+/** 兼容历史 localStorage key（Bee Aligned 时期 bealigned_*） */
+const STORAGE_LEGACY_BEEALIGNED = {
   openai: "beealigned_openai_key",
   anthropic: "beealigned_anthropic_key",
   deepseek: "beealigned_deepseek_key",
@@ -85,7 +96,7 @@ const STORAGE = {
   azureOpenaiDeployment: "beealigned_azure_openai_deployment",
 } as const;
 
-/** 兼容历史 localStorage key（alignspec_ / previbe_；当前为 bealigned_*） */
+/** 兼容历史 localStorage key（alignspec_ / previbe_） */
 const STORAGE_LEGACY_ALIGN = {
   openai: "alignspec_openai_key",
   anthropic: "alignspec_anthropic_key",
@@ -110,6 +121,8 @@ function readStorageField(id: keyof typeof STORAGE): string {
   if (typeof window === "undefined") return "";
   const next = localStorage.getItem(STORAGE[id]);
   if (next != null && next.length > 0) return next;
+  const legacyBee = localStorage.getItem(STORAGE_LEGACY_BEEALIGNED[id]);
+  if (legacyBee != null && legacyBee.length > 0) return legacyBee;
   const legacyA = localStorage.getItem(STORAGE_LEGACY_ALIGN[id]);
   if (legacyA != null && legacyA.length > 0) return legacyA;
   return localStorage.getItem(STORAGE_LEGACY_PREV[id]) ?? "";

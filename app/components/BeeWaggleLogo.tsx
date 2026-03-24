@@ -10,7 +10,7 @@ type BeeWaggleLogoProps = {
 /**
  * 蜜蜂徽标；置于 `bg-primary text-primary-foreground` 容器内以继承对比色。
  */
-export function BeeWaggleLogo({ className, title = "Bee Aligned" }: BeeWaggleLogoProps) {
+export function BeeWaggleLogo({ className, title = "Bee Waggle" }: BeeWaggleLogoProps) {
   return (
     <span className={cn("inline-flex shrink-0", className)} title={title}>
       <svg

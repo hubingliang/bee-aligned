@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "快速开始 — Bee Aligned",
+  title: "快速开始 — Bee Waggle",
   description:
     "配置 API Key、选择模型与角色，完成导入 → 需求稿 → Final Spec 的完整路径。",
 };

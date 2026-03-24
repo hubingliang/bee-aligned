@@ -1,11 +1,11 @@
-import mammoth from "mammoth";
-import { PDFParse } from "pdf-parse";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
 /** Vercel Serverless 请求体上限约 4.5MB，须留余量，避免在到达本路由前被边缘层拒绝并返回空响应 */
 export const maxDuration = 60;
+
+export const dynamic = "force-dynamic";
 
 const MAX_BYTES = 4 * 1024 * 1024;
 
@@ -17,7 +17,9 @@ function getExtension(filename: string): string {
   return filename.slice(i + 1).toLowerCase();
 }
 
+/** 动态导入，避免 pdf-parse/pdfjs 在部分 Serverless 环境初始化失败时拖垮整段路由模块加载（表现为 500 HTML 而非 JSON） */
 async function parsePdf(buffer: Buffer): Promise<string> {
+  const { PDFParse } = await import("pdf-parse");
   const parser = new PDFParse({ data: buffer });
   try {
     const result = await parser.getText();
@@ -28,7 +30,8 @@ async function parsePdf(buffer: Buffer): Promise<string> {
 }
 
 async function parseDocx(buffer: Buffer): Promise<string> {
-  const result = await mammoth.extractRawText({ buffer });
+  const { extractRawText } = await import("mammoth");
+  const result = await extractRawText({ buffer });
   return result.value.trim();
 }
 
@@ -47,7 +50,10 @@ export async function POST(request: Request) {
 
     if (file.size > MAX_BYTES) {
       return NextResponse.json(
-        { error: "文件超过 4MB 限制（部署环境单请求约 4.5MB 上限），请压缩或拆分后再试" },
+        {
+          error:
+            "文件超过 4MB 限制（部署环境单请求约 4.5MB 上限），请压缩或拆分后再试",
+        },
         { status: 413 },
       );
     }

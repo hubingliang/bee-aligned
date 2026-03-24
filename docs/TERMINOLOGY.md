@@ -1,11 +1,11 @@
-# 术语与语言规范（Bee Aligned）
+# 术语与语言规范（Bee Waggle）
 
 ## 品牌
 
 | 用语 | 说明 |
 | --- | --- |
-| **Bee Aligned** | 产品正式名称；双关：蜜蜂式协作 + **Be Aligned（保持对齐）**。 |
-| **Alignment Line** | 视觉隐喻：左右分栏 Resizable 分割条上的微弱呼吸灯动效，象征对齐线。 |
+| **Bee Waggle** | 产品正式名称；双关：蜜蜂 **Waggle**（摇摆舞）传递信息 + 工程 **对齐** 交付 Spec。 |
+| **Alignment Line** | 视觉隐喻：左右分栏 Resizable 分割条上的淡金渐变，象征对齐线。 |
 
 ## 产品术语
 
@@ -20,7 +20,7 @@
 ## 代码与文件
 
 - 模块路径 `lib/logic-audit.ts` 保留历史文件名；注释与对外文案使用 **Alignment Audit**。
-- `package.json` 的 `name` 为 `bee-aligned`；本地存储 key 前缀为 `beealigned_*`，并兼容 `alignspec_*` / `previbe_*`。
+- `package.json` 的 `name` 为 `bee-waggle`；本地存储 key 前缀为 `beewaggle_*`，并兼容 `beealigned_*`、`alignspec_*`、`previbe_*`。
 
 ## 禁止混用
 

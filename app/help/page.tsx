@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "帮助中心 — Bee Aligned",
+  title: "帮助中心 — Bee Waggle",
   description:
     "模型与密钥、工作流、Vibe 与 Alignment Audit、Final Spec（Logic Blueprint）与常见问题。",
 };

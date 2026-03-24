@@ -14,7 +14,7 @@ import { BeeWaggleLogo } from "@/app/components/BeeWaggleLogo";
 import { ArrowRight, FileText, Wand2 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Bee Aligned — 从需求到 Final Spec（Logic Blueprint）",
+  title: "Bee Waggle — 从需求到 Final Spec（Logic Blueprint）",
   description:
     "导入 PRD、整理需求稿（Markdown）、Alignment Audit 与 Vibe 分数，按角色生成 Final Spec 与 Cursor 规则建议。",
 };
@@ -25,7 +25,7 @@ export default function HomePage() {
       <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
         <section className="text-center">
           <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            Bee Aligned · Clean · Align · Final Spec
+            Bee Waggle · Clean · Align · Final Spec
           </p>
           <p className="mb-4 text-sm font-medium tracking-wide text-primary">
             PRD → 需求稿 → Final Spec
@@ -35,7 +35,7 @@ export default function HomePage() {
             <span className="text-primary"> Final Spec</span>
           </h1>
           <p className="mx-auto mt-4 max-w-[28rem] text-sm text-muted-foreground">
-            蜜蜂式协作，工程级 Be Aligned。
+            摇摆舞传递信息，工程对齐交付 Spec。
           </p>
           <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg text-muted-foreground">
             结构化需求稿（Markdown）、Alignment Audit、Vibe 密度提示，再按角色生成含 Mermaid 与{" "}
