@@ -6,7 +6,7 @@
 - **隐喻**：蜂群通过协作达成一致目标；工程上则体现为 Spec、审计结论与可执行输出之间的**对齐线**。
 
 ## 2. 视觉与 UI
-- **主题**：`app/globals.css` 仅 `@import`（Tailwind / shadcn 所需）+ 约定的 **`@layer base`（`:root` / `.dark` HSL 变量）**；勿再堆叠其它全局样式块。
+- **主题**：`app/globals.css` 含 `@import`、`@theme inline`（`--color-*` → `hsl(var(--…))`，Tailwind 工具类必需）+ **`@layer base`（`:root` / `.dark` HSL 分量）**；勿再堆叠与主题无关的全局样式块。
 - **局部动效**：`ShinyText` / `ShimmerButton` / `BorderBeam` 各自引入同目录 `.css`（keyframes）；工作台 Spec 提示条用 `app/workspace/spec-protocol-enter.css`。
 - **徽标**：`BeeWaggleLogo`（`app/components/BeeWaggleLogo.tsx`）。
 - **栈**：Next.js App Router、TypeScript、shadcn/ui + Tailwind。
