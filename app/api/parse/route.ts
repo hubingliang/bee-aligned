@@ -2,6 +2,8 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import { installDomMatrixPolyfill } from "@/lib/install-dommatrix-polyfill";
+
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -49,6 +51,7 @@ function configurePdfWorker(PDFParse: {
 
 /** 动态导入，避免 pdf-parse/pdfjs 在部分 Serverless 环境初始化失败时拖垮整段路由模块加载（表现为 500 HTML 而非 JSON） */
 async function parsePdf(buffer: Buffer): Promise<string> {
+  await installDomMatrixPolyfill();
   const { PDFParse } = await import("pdf-parse");
   configurePdfWorker(PDFParse);
   const parser = new PDFParse({ data: buffer });

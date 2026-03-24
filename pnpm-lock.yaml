@@ -11,6 +11,9 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^0.80.0
         version: 0.80.0(zod@4.3.6)
+      '@thednp/dommatrix':
+        specifier: ^3.0.3
+        version: 3.0.3
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1534,6 +1537,10 @@ packages:
 
   '@tailwindcss/postcss@4.2.2':
     resolution: {integrity: sha512-n4goKQbW8RVXIbNKRB/45LzyUqN451deQK0nzIeauVEqjlI49slUlgKYJM2QyUzap/PcpnS7kzSUmPb1sCRvYQ==}
+
+  '@thednp/dommatrix@3.0.3':
+    resolution: {integrity: sha512-vjHBWCaBcu3AIzEr9fON0TtNYVKyHj+aZxsGFo/AAmTmFem8w+JTncAxfk/hUiEc7/hFIrvw8qGQK3jHaHviuA==}
+    engines: {node: '>=20', pnpm: '>=8.6.0'}
 
   '@ts-morph/common@0.27.0':
     resolution: {integrity: sha512-Wf29UqxWDpc+i61k3oIOzcUfQt79PIT9y/MWfAGlrkjg6lBC1hwDECLXPVJAhWjiGbfBCxZd65F/LIZF3+jeJQ==}
@@ -6122,6 +6129,8 @@ snapshots:
       '@tailwindcss/oxide': 4.2.2
       postcss: 8.5.8
       tailwindcss: 4.2.2
+
+  '@thednp/dommatrix@3.0.3': {}
 
   '@ts-morph/common@0.27.0':
     dependencies:
